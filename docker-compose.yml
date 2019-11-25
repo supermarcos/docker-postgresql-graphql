@@ -1,0 +1,48 @@
+version: "3.1"
+services:
+  db:
+    container_name: my-db
+    restart: always
+    image: my-db
+    build:
+      context: ./db
+    volumes:
+      - D:\Documents\experiments\dockers\postgresql\data:/db:rw
+    env_file:
+      - ./.env
+    networks:
+      - network
+    ports:
+      - 5432:5432
+
+  graphql:
+    container_name: my-graphql
+    restart: always
+    image: my-graphql
+    build:
+      context: ./graphql
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - network
+    ports:
+      - 5433:5433
+    command:
+      [
+        "--connection",
+        "${DATABASE_URL}",
+        "--port",
+        "5433",
+        "--schema",
+        "your_schema",
+        "--append-plugins",
+        "postgraphile-plugin-connection-filter",
+      ]
+
+networks:
+  network:
+
+volumes:
+  db:
